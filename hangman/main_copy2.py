@@ -1,6 +1,10 @@
+# imports
 import time, random, pygame
 
+# pygame module initialisation
 pygame.init()
+
+# GUI color palette
 white = (255, 255, 255)
 CYAN = (0, 255, 255)
 gray = (128, 128, 128)
@@ -9,17 +13,25 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 MAGENTA = (255, 0, 255)
+
+# GUI display configuration
 display_width = 900
 display_height = 600
 gameDisplay = pygame.display.set_mode((display_width, display_height))
+
+# Image imports
 pygame.display.set_caption('Hangman')
 img = pygame.image.load('hangman.jpg')
 icon = pygame.image.load('icon.png')
 pygame.display.set_icon(icon)
+
+# taking random words from txt file
 fileptr = open('wordlist', 'r')
 words = fileptr.read()
 words = words.split('\n')
 words_length = len(words)
+
+# keyboard input variables declarations
 used = {}
 left = {}
 pressed = {}
@@ -36,17 +48,21 @@ first = 0
 score = 0
 
 
+# game quit function
 def quitGame():
     pygame.quit()
     quit()
 
 
+# text model function for representation of text on screen
 def text_object(text, font, color=BLACK):
     textSurface = font.render(text, True, color)
     return textSurface, textSurface.get_rect()
 
 
+# display function aka GUI screen
 def display_used():
+    # font and font size declaration
     text = pygame.font.SysFont('comicsans', 20)
     global used
     for i in used:
@@ -57,6 +73,7 @@ def display_used():
     pygame.display.update()
 
 
+# function for underline or blank space for filling up the space
 def showleft():
     text = pygame.font.SysFont('comicsans', 20)
     global left
@@ -67,6 +84,7 @@ def showleft():
             gameDisplay.blit(textSurf, textRect)
 
 
+# button function for taking user action
 def button(msg, x, y, w, h, c1, c2, action=None):
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
@@ -78,8 +96,6 @@ def button(msg, x, y, w, h, c1, c2, action=None):
             action()
             if action == closing or action == closing1:
                 quitGame()
-            if action == win_score:
-                win_score()
     else:
         pygame.draw.rect(gameDisplay, c2, (x, y, w, h))
     font = pygame.font.SysFont('comicsans', 30)
@@ -88,7 +104,9 @@ def button(msg, x, y, w, h, c1, c2, action=None):
     gameDisplay.blit(textSurf, textRect)
 
 
+# letter function for presenting the words on the blanks
 def letter(msg, x, y, w, h, c1, c2):
+    # taking user input from mouse as well keyboard
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
     global used, pressed, word, correct, correct, word_length, line_x, line_y, bar, count, pause, first
@@ -127,6 +145,7 @@ def letter_pressed(msg, x, y):
     gameDisplay.blit(textSurf, textRect)
 
 
+# closing function which will be activated when user is trying to exit the game(aka animation effect)
 def closing():
     for i in range(1, 730):
         gameDisplay.fill(white)
@@ -134,6 +153,7 @@ def closing():
         pygame.display.update()
 
 
+# closing function which will be activated when user is trying to exit the game(aka whoop out animation effect)
 def closing1():
     for i in range(1, 730):
         gameDisplay.fill(white)
@@ -141,6 +161,7 @@ def closing1():
         pygame.display.update()
 
 
+# opening function which will be activated when user is play the game for the first time(aka whoop in animation effect)
 def opening():
     for i in range(700, -1, -1):
         gameDisplay.fill(white)
@@ -148,6 +169,7 @@ def opening():
         pygame.display.update()
         x = 150
         y = 400
+    # displaying keyboard on the screen with ease in animation
     gameDisplay.fill(WHITE)
     for i in 'QWERTYUIOP':
         time.sleep(.1)
@@ -171,6 +193,7 @@ def opening():
     game_loop()
 
 
+# function for the message box on screen in the text_object area
 def message_display(text):
     largeText = pygame.font.SysFont('comicsans', 100)
     TextSurf, TextRect = text_object(text, largeText)
@@ -179,6 +202,7 @@ def message_display(text):
     pygame.display.update()
 
 
+# function for hangman image construction when the user is predicting wrong words
 def hangman():
     if count > 0:
         pygame.draw.line(gameDisplay, BLACK, (750, 300), (850, 300), 5)
@@ -206,6 +230,7 @@ def hangman():
         pygame.draw.line(gameDisplay, BLACK, (700, 195), (660, 230), 3)
         pygame.draw.line(gameDisplay, BLACK, (700, 195), (740, 230), 3)
         global word, used, bar, line_x, line_y, left, word_length, pause
+        # loop for continues construction of body whenever user s predicting wrong word
         for i in range(word_length):
             if word[i] not in used:
                 if word[i] not in left:
@@ -213,9 +238,11 @@ def hangman():
                 else:
                     left[word[i]].append(15 * (i + 1) + bar * i + int(bar / 2))
                     left[word[i]].append(line_y - 20)
+    # refreshing screen after completion of game using update function
     pygame.display.update()
 
 
+# function for starting game
 def game_start():
     start = True
     while start:
@@ -224,30 +251,13 @@ def game_start():
                 quitGame()
         gameDisplay.fill(white)
         gameDisplay.blit(img, (110, 50))
-        button('Start..!', 200, 400, 150, 100, gray, WHITE, opening)
-        button('Exit', 500, 400, 150, 100, gray, WHITE, closing)
+        # buttons for starting and exiting the game at initial interface
+        button('Start..!', 200, 400, 150, 100, gray, WHITE, opening) # parameters of button customization
+        button('Exit', 500, 400, 150, 100, gray, WHITE, closing) # parameters of button customization
         pygame.display.update()
 
 
-def win_score():
-    global score
-    x = 400
-    y = 300
-    font = pygame.font.Font('freesansbold.ttf', 32)
-    gameDisplay.fill(white)
-    pygame.display.update()
-    if count > 7:
-        text = font.render(f'Your score is {score}', True, BLACK, BLUE)
-        textRect = text.get_rect()
-        textRect.center = (x // 2, y // 2)
-
-        gameDisplay.blit(text, textRect)
-    else:
-        score = 0
-
-    clock.tick(20)
-
-
+# function for gaming session
 def game_loop():
     game = True
     global used, left, count, pressed, word, word_length, correct, pause, line_x, line_y, bar
@@ -283,6 +293,7 @@ def game_loop():
             line_x += bar
         x = 150
         y = 400
+        # loop for continues inout from the user
         for i in 'QWERTYUIOP':
             if i not in pressed:
                 letter(i, x, y, 50, 50, RED, gray)
@@ -291,6 +302,7 @@ def game_loop():
             x += 55
         x = 180
         y = 455
+        # loop for continues inout from the user
         for i in 'ASDFGHJKL':
             if i not in pressed:
                 letter(i, x, y, 50, 50, RED, gray)
@@ -299,6 +311,7 @@ def game_loop():
             x += 55
         x = 235
         y = 510
+        # loop for continues inout from the user
         for i in 'ZXCVBNM':
             if i not in pressed:
                 letter(i, x, y, 50, 50, RED, gray)
@@ -310,15 +323,14 @@ def game_loop():
             message_display('You won..!')
             if win_time == 0:
                 win_time = 1
-                score += 10
-                win_score()
+                # whenever the game is complete new game will be automatically restart
                 game_loop()
         if count > 7:
             pause = 1
             message_display('You Lost..!')
             if loss_time == 0:
                 loss_time = 1
-            button('Score', 100, 150, 180, 100, RED, gray, win_score)
+            button('Play Again', 100, 150, 180, 100, RED, gray, game_loop)
             button('Exit', 300, 150, 150, 100, RED, gray, closing1)
         display_used()
         showleft()
